@@ -3,6 +3,7 @@ import './styles.css';
 import { useNavigate } from 'react-router-dom';
 import {questions, shuffle} from '../../database/questions';
 import Logo from '../../assets/images/quiz.png';
+import Score from '../score';
 
 
 function Game() {
@@ -10,6 +11,7 @@ function Game() {
     const [currentQuestion, setCurrentQuestion] =useState(0);
     const [questionsSelected,setQuestionsSelected] =useState([]);
     const [useAnswers, setUseAnswers] =useState([]);
+    const [finish, setFinish] = useState(false);
 
 
 
@@ -24,6 +26,23 @@ function Game() {
 
         },[questionsSelected])
 
+        // Funçao chamada quando o usuario responde uma questao
+        function handleAnswer(selectedOptionIndex) {
+          const currentQuestionData = questionsSelected[currentQuestion];
+          const useAnswer = currentQuestionData.answers[Number(selectedOptionIndex)];
+          setUseAnswers([...useAnswers, useAnswer]);
+
+          if(currentQuestion < 4){
+            setCurrentQuestion(currentQuestion + 1);
+          }else{
+             setFinish(true);
+          }
+        }
+        const currentQuestionData = questionsSelected[currentQuestion];
+        if(finish){
+          const correctAnswers = useAnswers.filter(answer => answer.correct === true).length;
+          return <Score score={correctAnswers}/>
+        }
 
   return (
     <div className='container'>
@@ -31,26 +50,18 @@ function Game() {
 
       <div className='card'>
         <div className='card-question'>
-           <h2 className='card-title'>Pergunta 1 de 5</h2>
-          <p className='question'>Qual a melhor linguagem de Programação?</p>
+           <h2 className='card-title'>Pergunta {currentQuestion + 1} de 5</h2>
+          <p className='question'>{currentQuestionData?.question}</p>
         </div>
         <div className='card-answer'>
             <div className='card-options'>
-              <button className='card-option'>
-                C++
+              {currentQuestionData?.answers.map((option, index) => (
+                <button key={index} className='card-option' onClick={()=> handleAnswer(index)}>
+                {option.text}
               </button>
-              <button className='card-option'>
-                JavaScript
-              </button>
-              <button className='card-option'>
-                Java
-              </button>
-              <button className='card-option'>
-                Python
-              </button>
-              <button className='card-option'>
-                C#
-              </button>
+              ))}
+              
+              
             </div>
           </div>
 
